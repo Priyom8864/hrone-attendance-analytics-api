@@ -109,8 +109,36 @@ def overtime_minutes(punch_out, start, end, day):
     end_day = day + timedelta(days=1) if end <= start else day
     mins = int((utc(punch_out.replace(microsecond=0)) - shift_time(end_day, end)).total_seconds()) // 60
     return mins if mins >= 30 else 0
+def attendance_date_for(punch_time, shift_start, shift_end):
+    """Return the attendance date associated with a shift."""
+    return shift_day(punch_time, shift_start, shift_end)
 
 
+def compute_late_minutes(punch_in, shift_start, shift_end, day):
+    """Calculate late arrival minutes, allowing a 10-minute grace period."""
+    return late_minutes(punch_in, shift_start, day)
+
+
+def compute_work_hours(punch_in, punch_out):
+    """Calculate worked hours rounded to two decimal places."""
+    return work_hours(punch_in, punch_out)
+
+
+def compute_overtime_for_employee(punch_out, shift_start, shift_end, day):
+    """Calculate qualifying overtime minutes."""
+    return overtime_minutes(punch_out, shift_start, shift_end, day)
+
+
+def datetime_to_epoch_ms(value):
+    """Convert a datetime to epoch milliseconds."""
+    return to_ms(value)
+
+
+def epoch_ms_to_datetime(value):
+    """Convert epoch milliseconds to a UTC datetime."""
+    return from_ms(value)
+def truncate_seconds(value):
+    return value.replace(microsecond=0)
 def check_gap(punch_in, punch_out, msg):
     gap = (utc(punch_out) - utc(punch_in)).total_seconds()
     if gap <= 0 or gap > DAY_SECONDS:
